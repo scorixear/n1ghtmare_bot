@@ -94,9 +94,9 @@ function sendRichTextExplicit(guild, channel, author, title, categories, color, 
     richText.setFooter(footer);
   } else if (guild && author) {
     richText.setFooter(guild.member(author).nickname, author.avatarURL());
+    richText.setTimestamp(new Date());
   }
 
-  richText.setTimestamp(new Date());
   if (url) {
     richText.setURL(url);
   }
