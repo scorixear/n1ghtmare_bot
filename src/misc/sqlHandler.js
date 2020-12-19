@@ -38,9 +38,11 @@ async function initDB() {
  */
 async function saveConfig(key, value) {
   let conn;
+  console.log('Here, do this');
   try {
     conn = await pool.getConnection();
     const rows = await conn.query(`SELECT \`value\` FROM \`config\` WHERE \`key\` = ${pool.escape(key)}`);
+    console.log(rows);
     if (rows && rows[0]) {
       if (value) {
         await conn.query(`UPDATE \`config\` SET \`value\` = ${pool.escape(value)} WHERE \`key\` = ${pool.escape(key)}`);
