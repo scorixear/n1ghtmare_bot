@@ -45,6 +45,7 @@ async function saveConfig(key, value) {
     console.log(rows);
     if (rows && rows[0]) {
       if (value) {
+        console.log('value: '+value);
         await conn.query(`UPDATE \`config\` SET \`value\` = ${pool.escape(value)} WHERE \`key\` = ${pool.escape(key)}`);
       } else {
         await conn.query(`DELETE FROM \`config\` WHERE \`key\` = ${pool.escape(key)}`);
