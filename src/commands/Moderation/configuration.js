@@ -2,6 +2,7 @@ import Command from './../command.js';
 import messageHandler from '../../misc/messageHandler.js';
 import {dic as language, replaceArgs} from '../../misc/languageHandler.js';
 import config from '../../config.js';
+import sqlHandler from '../../misc/sqlHandler.js';
 
 export default class Config extends Command {
   constructor(category) {
@@ -18,7 +19,7 @@ export default class Config extends Command {
    * @param {Message} msg the msg object
    * @param {*} params added parameters and their argument
    */
-  executeCommand(args, msg, params) {
+  async executeCommand(args, msg, params) {
     try {
       super.executeCommand(args, msg, params);
     } catch (err) {
@@ -39,7 +40,11 @@ export default class Config extends Command {
       return;
     }
 
-    Object.entries(params).forEach(([key, value])=>config.customSettings[key] = value);
+    for (const [key, value] of paramArray) {
+      await sqlHandler.saveConfig(key, value);
+    }
+
+    // Object.entries(params).forEach(([key, value])=>config.customSettings[key] = value);
 
     let savedConfigs = '';
     Object.entries(params).forEach( (item) => savedConfigs = savedConfigs+item[0]+' = '+item[1]+'\n');

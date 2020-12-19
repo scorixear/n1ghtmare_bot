@@ -3,6 +3,7 @@ import messageHandler from '../../misc/messageHandler.js';
 import {dic as language, replaceArgs} from '../../misc/languageHandler.js';
 import config from '../../config.js';
 import {Message} from 'discord.js';
+import sqlHandler from '../../misc/sqlHandler.js';
 
 export default class CTA extends Command {
   constructor(category) {
@@ -19,7 +20,7 @@ export default class CTA extends Command {
    * @param {Message} msg the msg object
    * @param {*} params added parameters and their argument
    */
-  executeCommand(args, msg, params) {
+  async executeCommand(args, msg, params) {
     try {
       super.executeCommand(args, msg, params);
     } catch (err) {
@@ -77,8 +78,9 @@ export default class CTA extends Command {
     if (params.sets) {
       sets = parseInt(params.sets);
     }
-
-    if (!config.customSettings['cta-channel']) {
+    const channelName = await sqlHandler.getConfigValue('cta-channel');
+    // console.log(ctaChannel);
+    if (!channelName) {
       messageHandler.sendRichTextDefault({
         msg: msg,
         title: language.general.error,
@@ -88,43 +90,39 @@ export default class CTA extends Command {
       return;
     }
 
-    if (config.customSettings['cta-channel']) {
-      const channel = msg.guild.channels.cache.find((c)=>c.type === 'text' && c.name.match(config.customSettings['cta-channel']));
-      if (!channel) {
-        messageHandler.sendRichTextDefault({
-          msg: msg,
-          title: language.general.error,
-          description: replaceArgs(language.commands.cta.error.missing_cta_channel, config.botPrefix),
-          color: 0xcc0000,
-        });
-        return;
-      }
-      let setMessage = '';
-      if (sets == 1) {
-        setMessage = '\n' + language.commands.cta.text.more_sets_singular + '\n';
-        console.log(setMessage);
-      } else if (sets > 1) {
-        setMessage = '\n' + replaceArgs(language.commands.cta.text.more_sets, [sets]) + '\n';
-      }
-
-      channel.send('@everyone');
-
-      messageHandler.sendRichTextDefaultExplicit({
-        guild: msg.guild,
-        channel: channel,
+    const channel = msg.guild.channels.cache.find((c)=>c.type === 'text' && c.name.match(channelName));
+    if (!channel) {
+      messageHandler.sendRichTextDefault({
+        msg: msg,
+        title: language.general.error,
+        description: replaceArgs(language.commands.cta.error.missing_cta_channel, config.botPrefix),
         color: 0xcc0000,
-        thumbnail: 'nightmare.png',
-        title: language.commands.cta.labels.cta_call,
-        description: replaceArgs(language.commands.cta.text.cta_description, [
-          this.getDoubleDigitTime(zvzutc),
-          this.getDoubleDigitTime(massuputc),
-          this.getDoubleDigitTime(germanUTC),
-          this.getDoubleDigitTime(brasilianUTC),
-          hammers?'\n'+language.commands.cta.text.hammers+'\n':'',
-          setMessage]),
-        footer: location,
       });
+      return;
     }
+    let setMessage = '';
+    if (sets == 1) {
+      setMessage = '\n' + language.commands.cta.text.more_sets_singular + '\n';
+      console.log(setMessage);
+    } else if (sets > 1) {
+      setMessage = '\n' + replaceArgs(language.commands.cta.text.more_sets, [sets]) + '\n';
+    }
+    channel.send('@everyone');
+    messageHandler.sendRichTextDefaultExplicit({
+      guild: msg.guild,
+      channel: channel,
+      color: 0xcc0000,
+      thumbnail: 'nightmare.png',
+      title: language.commands.cta.labels.cta_call,
+      description: replaceArgs(language.commands.cta.text.cta_description, [
+        this.getDoubleDigitTime(zvzutc),
+        this.getDoubleDigitTime(massuputc),
+        this.getDoubleDigitTime(germanUTC),
+        this.getDoubleDigitTime(brasilianUTC),
+        hammers?'\n'+language.commands.cta.text.hammers+'\n':'',
+        setMessage]),
+      footer: location,
+    });
   }
 
   /**

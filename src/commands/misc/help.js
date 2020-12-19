@@ -11,7 +11,7 @@ export default class Help extends Command {
     this.usage = `help [${language.commands.help.labels.command.toLowerCase()}]`;
     this.command = 'help';
     this.description = () => language.commands.help.description;
-    this.example = 'help\nhelp hi';
+    this.example = 'help\nhelp config';
   }
   /**
    * Executes the command
