@@ -89,13 +89,14 @@ export default class CTA extends Command {
       });
       return;
     }
-
+    console.log(channelName);
     const channel = msg.guild.channels.cache.find((c)=>c.type === 'text' && c.name.match(channelName));
+    msg.guild.channels.cache.forEach((c)=>console.log('Channel: '+c.name));
     if (!channel) {
       messageHandler.sendRichTextDefault({
         msg: msg,
         title: language.general.error,
-        description: replaceArgs(language.commands.cta.error.missing_cta_channel, config.botPrefix),
+        description: replaceArgs(language.commands.cta.error.channel_name_wrong, [channelName, config.botPrefix]),
         color: 0xcc0000,
       });
       return;
