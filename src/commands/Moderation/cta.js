@@ -103,7 +103,6 @@ export default class CTA extends Command {
     let setMessage = '';
     if (sets == 1) {
       setMessage = '\n' + language.commands.cta.text.more_sets_singular + '\n';
-      console.log(setMessage);
     } else if (sets > 1) {
       setMessage = '\n' + replaceArgs(language.commands.cta.text.more_sets, [sets]) + '\n';
     }
