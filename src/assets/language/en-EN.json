@@ -12,7 +12,7 @@
       },
       "error": {
         "missing_cta_channel": "The configuration cta-channel was not set.\nUse `$0config --cta-channel \"ChannelName\"` to set it",
-        "channel_name_wrong": "Could not find channel with name $0.\nUse `$1config --cta-channel \"ChannelName\"` to set it"
+        "channel_name_wrong": "Could not find channel with name `$0`.\nUse `$1config --cta-channel \"ChannelName\"` to set it"
       },
       "description": "Announces a new CTA"
     },
