@@ -40,7 +40,16 @@ async function saveConfig(key, value) {
   let conn;
   try {
     conn = await pool.getConnection();
-    await conn.query(`INSERT INTO \`config\` VALUES (${pool.escape(key)}, ${pool.escape(value)})`);
+    const rows = await conn.query(`SELECT \`value\` FROM \`config\` WHERE \`key\` = ${pool.escape(key)}`);
+    if (rows && rows[0]) {
+      if (value) {
+        await conn.query(`UPDATE \`config\` SET \`value\` = ${pool.escape(value)} WHERE \`key\` = ${pool.escape(key)}`);
+      } else {
+        await conn.query(`DELETE FROM \`config\` WHERE \`key\` = ${pool.escape(key)}`);
+      }
+    } else {
+      await conn.query(`INSERT INTO \`config\` VALUES (${pool.escape(key)}, ${pool.escape(value)})`);
+    }
   } catch (err) {
     throw err;
   } finally {
