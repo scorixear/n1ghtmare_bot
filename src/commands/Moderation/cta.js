@@ -89,7 +89,9 @@ export default class CTA extends Command {
       });
       return;
     }
-    const channel = msg.guild.channels.cache.find((c)=>c.type === 'text' && c.name.match(channelName));
+    console.log(channelName);
+    const channel = msg.guild.channels.cache.find((c)=>c.type === 'text' && c.name.includes(channelName));
+    msg.guild.channels.cache.forEach((c)=>console.log('Channel: '+c.name));
     if (!channel) {
       messageHandler.sendRichTextDefault({
         msg: msg,
