@@ -101,34 +101,27 @@ export default class CTA extends Command {
       }
       let setMessage = '';
       if (sets == 1) {
-        setMessage = '\n' + language.commands.cta.more_sets_singular + '\n';
+        setMessage = '\n' + language.commands.cta.text.more_sets_singular + '\n';
         console.log(setMessage);
       } else if (sets > 1) {
-        setMessage = '\n' + replaceArgs(language.commands.cta.more_sets, [sets]) + '\n';
+        setMessage = '\n' + replaceArgs(language.commands.cta.text.more_sets, [sets]) + '\n';
       }
+
+      channel.send('@everyone');
+
       messageHandler.sendRichTextDefaultExplicit({
         guild: msg.guild,
         channel: channel,
         color: 0xcc0000,
         thumbnail: 'nightmare.png',
         title: language.commands.cta.labels.cta_call,
-        description: replaceArgs(language.commands.cta.cta_description, [
+        description: replaceArgs(language.commands.cta.text.cta_description, [
           this.getDoubleDigitTime(zvzutc),
           this.getDoubleDigitTime(massuputc),
           this.getDoubleDigitTime(germanUTC),
           this.getDoubleDigitTime(brasilianUTC),
-          hammers?'\n'+language.commands.cta.hammers+'\n':'',
+          hammers?'\n'+language.commands.cta.text.hammers+'\n':'',
           setMessage]),
-        // description: replaceArgs(language.commands.cta.text.cta_description_utc, [this.getDoubleDigitTime(zvzutc)]),
-        // categories: [
-        //   {
-        //     title: replaceArgs(language.commands.cta.text.cta_description_massup, [this.getDoubleDigitTime(massuputc)]),
-        //     text: replaceArgs(language.commands.cta.text.cta_description_optionals, [this.getDoubleDigitTime(germanUTC),
-        //       this.getDoubleDigitTime(brasilianUTC),
-        //       hammers?'\n'+language.commands.cta.hammers+'\n':'',
-        //       setMessage]),
-        //   },
-        // ],
         footer: location,
       });
     }
