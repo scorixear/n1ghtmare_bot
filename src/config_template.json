@@ -1,0 +1,12 @@
+{
+  "token": "your_token",
+  "discordUrl": "https://discordapp.com/oauth2/authorize?client_id=client_id&scope=bot&permissions=2146958807",
+  "repository": "https://github.com/scorixear/n1ghtmare_bot",
+  "botPrefix": "!",
+  "language": "en-EN",
+  "dbhost": "127.0.0.1",
+  "dbuser": "username",
+  "dbpassword": "password",
+  "dbport": "3306",
+  "dbDataBase": "n1gthmare"
+}
