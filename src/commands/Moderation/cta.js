@@ -105,6 +105,21 @@ export default class CTA extends Command {
     } else if (sets > 1) {
       setMessage = '\n' + replaceArgs(language.commands.cta.text.more_sets, [sets]) + '\n';
     }
+
+    const today = new Date();
+    const todayTime = today.getUTCHours() * 60 * 60 + today.getUTCMinutes() * 60 + today.getUTCSeconds();
+    const zvzTime = zvzutc.getHours() * 60 * 60 + zvzutc.getMinutes() * 60;
+    const zvzDate = new Date(today.getTime());
+    if (todayTime > zvzTime) {
+      zvzDate.setDate(today.getUTCDate() + 1);
+    }
+    zvzDate.setUTCHours(zvzutc.getHours());
+    zvzDate.setUTCMinutes(zvzutc.getMinutes());
+    zvzDate.setUTCSeconds(0);
+    zvzDate.setUTCMilliseconds(0);
+
+    await sqlHandler.saveCTA(zvzDate.getTime());
+
     channel.send('@everyone');
     messageHandler.sendRichTextDefaultExplicit({
       guild: msg.guild,

@@ -24,12 +24,61 @@ async function initDB() {
     conn = await pool.getConnection();
     console.log('DB Connection established');
     await conn.query('CREATE TABLE IF NOT EXISTS `config` (`key` VARCHAR(255), `value` VARCHAR(255), PRIMARY KEY (`key`))');
+    await conn.query('CREATE TABLE IF NOT EXISTS `cta` (`id` INT NOT NULL AUTO_INCREMENT, `time` BIGINT NOT NULL UNIQUE, PRIMARY KEY(`id`))');
   } catch (err) {
     throw err;
   } finally {
     if (conn) return conn.end();
   }
 }
+
+/**
+ *
+ * @param {number} time
+ */
+async function saveCTA(time) {
+  let conn;
+  try {
+    conn = await pool.getConnection();
+    const rows = await conn.query(`SELECT \`id\` FROM \`cta\` WHERE \`time\`=${pool.escape(time)}`);
+    if (!rows || !rows[0]) {
+      await conn.query(`INSERT INTO \`cta\` (\`time\`) VALUES (${pool.escape(time)})`);
+    }
+    const today = new Date();
+    await conn.query(`DELETE FROM \`cta\` WHERE \`time\` < ${today.getTime()}`);
+  } catch (err) {
+    throw err;
+  } finally {
+    if (conn) return conn.end();
+  }
+}
+
+/**
+ *
+ * @param {number} afterTime
+ * @return {Array<number>}
+ */
+async function getCTA(afterTime) {
+  let conn;
+  let ctaTimes = [];
+  try {
+    conn = await pool.getConnection();
+    const rows = await conn.query(`SELECT \`time\` FROM \`cta\` WHERE \`time\` > ${pool.escape(afterTime)}`);
+    if (rows && rows[0]) {
+      for (const row of rows) {
+        if (row.time) {
+          ctaTimes = [...ctaTimes, row.time];
+        }
+      }
+    }
+  } catch (err) {
+    throw err;
+  } finally {
+    if (conn) conn.end();
+    return ctaTimes;
+  }
+}
+
 
 /**
  *
@@ -86,5 +135,7 @@ export default {
   initDB,
   saveConfig,
   getConfigValue,
+  saveCTA,
+  getCTA,
   pool,
 };
