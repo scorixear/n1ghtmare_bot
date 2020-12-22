@@ -55,6 +55,14 @@
     },
     "permissions": {
       "error": "Invalid permissions to use `$0$1`!"
+    },
+    "killBot": {
+      "error": {
+        "missing_replacement_channel": "The configuration replacement-channel was not set.\nUse `$0config --replacement-channel \"ChannelName\"` to set it"
+      },
+      "description": "Huh? I detected a Death during a CTA. This might be a replacement.\nReact with :white_check_mark: if this is correct or ❌ if it is not.",
+      "title": "CTA Death detected",
+      "killed": "@$0 killed @$1"
     }
   },
   "general": {

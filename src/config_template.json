@@ -4,6 +4,8 @@
   "repository": "https://github.com/scorixear/n1ghtmare_bot",
   "botPrefix": "!",
   "botChannel": "spamming_bot",
+  "botGuild": "N1GHTMARE_DEBUG",
+  "trackedGuilds": ["N1GHTMARE"],
   "language": "en-EN",
   "dbhost": "127.0.0.1",
   "dbuser": "username",
