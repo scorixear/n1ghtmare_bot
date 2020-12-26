@@ -117,8 +117,13 @@ export default class CTA extends Command {
     zvzDate.setUTCMinutes(zvzutc.getMinutes());
     zvzDate.setUTCSeconds(0);
     zvzDate.setUTCMilliseconds(0);
+    const massupDate = new Date(zvzDate.getTime());
+    massupDate.setUTCHours(massuputc.getHours());
+    massupDate.setUTCMinutes(massuputc.getMinutes());
+    massupDate.setUTCSeconds(0);
+    massupDate.setUTCMilliseconds(0);
 
-    await sqlHandler.saveCTA(zvzDate.getTime());
+    await sqlHandler.saveCTA(zvzDate.getTime(), massupDate.getTime());
 
     channel.send('@everyone');
     messageHandler.sendRichTextDefaultExplicit({

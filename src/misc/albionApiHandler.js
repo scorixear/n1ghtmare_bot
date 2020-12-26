@@ -4,14 +4,14 @@ import sqlHandler from './sqlHandler';
 import discordHandler from './discordHandler';
 import messageHandler from './messageHandler';
 import {dic as language, replaceArgs} from './languageHandler.js';
+import logger from './logger';
 const baseUri = 'https://gameinfo.albiononline.com/api/gameinfo/';
 const eventUri = 'events';
 let replacementChannel;
-let lastRecordedKill = -1;
 
 async function fetchKills(limit = 51, offset = 0) {
   replacementChannel = await sqlHandler.getConfigValue('replacement-channel');
-  console.log('Fetching Kills from AlbionOnline');
+  logger.log('Fetching Kills from AlbionOnline');
   request({
     uri: `${baseUri}${eventUri}?limit=${limit}&offset=${offset}`,
     json: true,
@@ -20,42 +20,26 @@ async function fetchKills(limit = 51, offset = 0) {
       if (response.statusCode === 200) {
         parseKills(body);
       } else {
-        console.log('Albion API Bad Request: ', response, body);
+        logger.err('Albion API BAD Request: ', response, body);
       }
     } else {
-      console.log('Albion API Error: ', error);
+      logger.err('Albion API Error: ', error);
     }
   });
 }
 
 function parseKills(events) {
   let count = 0;
-  const breaker = lastRecordedKill;
-  events.some((kill, index) => {
-    if (index == 0) {
-      lastRecordedKill = kill.EventId;
+  for(const kill of events) {
+    //console.log(kill.EventId)
+    if (config.trackedGuilds.find((guild)=>guild.toLowerCase() === kill.Victim.GuildName.toLowerCase()) && !config.trackedGuilds.find((guild)=>guild.toLowerCase() === kill.Killer.GuildName.toLowerCase()) && kill.TotalVictimKillFame != 0) {
+      console.log(kill.Victim.Name + ' <-- '+kill.Killer.Name);
+      handleDeath(kill);
     }
-
-    if (kill.EventId != breaker) {
-      // console.log(kill);
-      // console.log(config.trackedGuilds);
-
-      console.log(kill.Victim.GuildName.toLowerCase());
-      if (config.trackedGuilds.find((guild)=>guild.toLowerCase() === kill.Victim.GuildName.toLowerCase()) && !config.trackedGuilds.find((guild)=>guild.toLowerCase() === kill.Killer.GuildName.toLowerCase()) && kill.TotalVictimKillFame != 0) {
-        console.log(kill.Victim.GuildName.toLowerCase());
-        console.log(config.trackedGuilds.find((guild)=>guild.toLowerCase() === kill.Victim.GuildName.toLowerCase()));
-        console.log(!config.trackedGuilds.find((guild)=>guild.toLowerCase() === kill.Killer.GuildName.toLowerCase()));
-        console.log(kill.TotalVictimKillFame != 0);
-        handleDeath(kill);
-      }
-    } else {
-      count++;
-    }
-    return kill.EventId == breaker;
-  });
+  }
 }
 
-function handleDeath(killEvent) {
+async function handleDeath(killEvent) {
   const botGuilds = discordHandler.client.guilds.cache;
 
   if (!replacementChannel) {
@@ -76,27 +60,32 @@ function handleDeath(killEvent) {
     return;
   }
 
-  for (const [snowflake, botGuild] of botGuilds) {
-    if (botGuild.name !== config.botGuild) continue;
-    // console.log(botGuild);
-    const channel = botGuild.channels.cache.find((c) => c.name.includes(replacementChannel));
-    // console.log(replacementChannel, channel);
-    if (channel) {
-      messageHandler.sendRichTextDefaultExplicit({
-        guild: botGuild,
-        channel: channel,
-        title: language.handlers.killBot.title,
-        description: replaceArgs(language.handlers.killBot.description, [killEvent.Victim.Name]),
-        color: 0xcc0000,
-        categories: [
-          {
-            title: replaceArgs(language.handlers.killBot.killed, [killEvent.Killer.Name, killEvent.Victim.Name]),
-            text: `https://albiononline.com/en/killboard/kill/${killEvent.EventId}`,
-          },
-        ],
-        // image: createImage(),
-        footer: parseTimestamp(killEvent.TimeStamp),
-      });
+
+  const alreadyExistent = await sqlHandler.saveKillboard(killEvent.EventId, killEvent.Victim.Name, killEvent.Killer.Name, killEvent.Killer.GuildName.ToString(), new Date(killEvent.TimeStamp.ToString()));
+
+  if(!alreadyExistent) {
+    for (const [snowflake, botGuild] of botGuilds) {
+      if (botGuild.name !== config.botGuild) continue;
+      // console.log(botGuild);
+      const channel = botGuild.channels.cache.find((c) => c.name.includes(replacementChannel));
+      // console.log(replacementChannel, channel);
+      if (channel) {
+        messageHandler.sendRichTextDefaultExplicit({
+          guild: botGuild,
+          channel: channel,
+          title: language.handlers.killBot.title,
+          description: replaceArgs(language.handlers.killBot.description, [killEvent.Victim.Name]),
+          color: 0xcc0000,
+          categories: [
+            {
+              title: replaceArgs(language.handlers.killBot.killed, [killEvent.Killer.Name, killEvent.Victim.Name]),
+              text: `https://albiononline.com/en/killboard/kill/${killEvent.EventId}`,
+            },
+          ],
+          // image: createImage(),
+          footer: parseTimestamp(killEvent.TimeStamp),
+        });
+      }
     }
   }
 }
@@ -113,4 +102,3 @@ function parseTimestamp(timestamp) {
 export default {
   fetchKills,
 }
-;
