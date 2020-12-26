@@ -5,6 +5,7 @@ import discordHandler from './discordHandler';
 import messageHandler from './messageHandler';
 import {dic as language, replaceArgs} from './languageHandler.js';
 import logger from './logger';
+import dateFormater from './dateFormater';
 const baseUri = 'https://gameinfo.albiononline.com/api/gameinfo/';
 const eventUri = 'events';
 let replacementChannel;
@@ -60,10 +61,10 @@ async function handleDeath(killEvent) {
     return;
   }
 
-
-  const alreadyExistent = await sqlHandler.saveKillboard(killEvent.EventId, killEvent.Victim.Name, killEvent.Killer.Name, killEvent.Killer.GuildName.ToString(), new Date(killEvent.TimeStamp.ToString()));
-
-  if(!alreadyExistent) {
+  const killDate = new Date(killEvent.TimeStamp.ToString());
+  const alreadyExistent = await sqlHandler.saveKillboard(killEvent.EventId, killEvent.Victim.Name, killEvent.Killer.Name, killEvent.Killer.GuildName.ToString(), killDate);
+  const hasCTA = await sqlHandler.hasCTA(killDate.getTime());
+  if(!alreadyExistent && hasCTA) {
     for (const [snowflake, botGuild] of botGuilds) {
       if (botGuild.name !== config.botGuild) continue;
       // console.log(botGuild);
@@ -83,7 +84,7 @@ async function handleDeath(killEvent) {
             },
           ],
           // image: createImage(),
-          footer: parseTimestamp(killEvent.TimeStamp),
+          footer: dateFormater.formatToNormalDate(killEvent.TimeStamp),
         });
       }
     }
@@ -94,10 +95,7 @@ function createImage() {
 
 }
 
-function parseTimestamp(timestamp) {
-  const date = new Date(Date.parse(timestamp));
-  return `${date.getFullYear()}.${date.getMonth()+1}.${date.getDate()} ${date.getHours()}:${date.getMinutes()}`;
-}
+
 
 export default {
   fetchKills,

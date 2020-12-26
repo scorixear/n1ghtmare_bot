@@ -51,6 +51,7 @@ async function saveCTA(zvzTime, massupTime) {
       await conn.query(`UPDATE \`cta\` SET \`massupTime\`=${pool.escape(massupTime)} WHERE \`zvzTime\`=${pool.escape(zvzTime)}`);
     }
     const today = new Date();
+    today.setDate(today.getDate() - 2);
     await conn.query(`DELETE FROM \`cta\` WHERE \`zvzTime\` < ${today.getTime()}`);
   } catch (err) {
     throw err;
@@ -61,27 +62,23 @@ async function saveCTA(zvzTime, massupTime) {
 
 /**
  *
- * @param {number} afterTime
+ * @param {number} killTime
  * @return {Array<number>}
  */
-async function getCTA(afterTime) {
+async function hasCTA(killTime) {
   let conn;
-  let ctaTimes = [];
+  let returnValue = false;
   try {
     conn = await pool.getConnection();
-    const rows = await conn.query(`SELECT \`time\` FROM \`cta\` WHERE \`massupTime\` > ${pool.escape(afterTime)}`);
+    const rows = await conn.query(`SELECT \`id\` FROM \`cta\` WHERE \`massupTime\` < ${pool.escape(killTime)} AND  \`zvzTime\` >= ${pool.escape(killTime - (15 * 1000 * 60))}`);
     if (rows && rows[0]) {
-      for (const row of rows) {
-        if (row.time) {
-          ctaTimes = [...ctaTimes, row.time];
-        }
-      }
+      returnValue = true;
     }
   } catch (err) {
     throw err;
   } finally {
     if (conn) conn.end();
-    return ctaTimes;
+    return returnValue;
   }
 }
 
@@ -176,7 +173,7 @@ export default {
   saveConfig,
   getConfigValue,
   saveCTA,
-  getCTA,
+  hasCTA,
   saveKillboard,
   pool,
 };
