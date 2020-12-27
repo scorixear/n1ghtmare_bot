@@ -58,6 +58,8 @@ export default class CTA extends Command {
 
     const germanUTC = new Date(massuputc.getTime());
     const brasilianUTC = new Date(massuputc.getTime());
+    const arabicUTC = new Date(massuputc.getTime());
+    arabicUTC.setHours(massuputc.getHours() + 3);
     brasilianUTC.setHours(massuputc.getHours() - 3);
     if (this.isDST(new Date())) {
       germanUTC.setHours(massuputc.getHours() + 2);
@@ -118,7 +120,7 @@ export default class CTA extends Command {
     zvzDate.setUTCSeconds(0);
     zvzDate.setUTCMilliseconds(0);
 
-    await sqlHandler.saveCTA(zvzDate.getTime());
+    // await sqlHandler.saveCTA(zvzDate.getTime());
 
     channel.send('@everyone');
     messageHandler.sendRichTextDefaultExplicit({
@@ -132,6 +134,7 @@ export default class CTA extends Command {
         this.getDoubleDigitTime(massuputc),
         this.getDoubleDigitTime(germanUTC),
         this.getDoubleDigitTime(brasilianUTC),
+        this.getDoubleDigitTime(arabicUTC),
         hammers?'\n'+language.commands.cta.text.hammers+'\n':'',
         setMessage]),
       footer: location,
