@@ -5,7 +5,7 @@
         "cta_call": ":crossed_swords: Call to Arms :crossed_swords:"
       },
       "text": {
-        "cta_description": ":small_red_triangle_down: $0 UTC ZVZ :small_red_triangle_down:\n\nMass Up: **$1 UTC**\n**$2** :flag_de: | **$3** :flag_br:\n$4$5",
+        "cta_description": ":small_red_triangle_down: $0 UTC ZVZ :small_red_triangle_down:\n\nMass Up: **$1 UTC**\n**$2** :flag_de: | **$3** :flag_br: | **$4** :flag_sa:\n$5$6",
         "hammers": ":axe: Bring hammers! :axe:",
         "more_sets_singular": "Have **1 set** in your inventory!",
         "more_sets": "Have **$0 sets** in your inventory!"
